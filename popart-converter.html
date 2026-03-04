@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pop Art Face</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EF;
+    --surface: #EDEBE6;
+    --ink: #1A1916;
+    --muted: #8C8A84;
+    --line: #D6D3CC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 880px; margin: 0 auto; padding: 0 32px 80px; }
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+  .logo-brand {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+  }
+  .logo-brand .star { font-style: normal; font-size: 18px; vertical-align: middle; margin: 0 1px; color: var(--muted); }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .version { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .upload-section { margin-bottom: 40px; }
+  .drop-zone {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 72px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--ink); background: var(--bg); }
+  .drop-icon { font-size: 28px; margin-bottom: 20px; display: block; opacity: 0.4; }
+  .drop-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: -0.2px; margin-bottom: 6px; }
+  .drop-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  #fileInput { display: none; }
+  .palette-section { margin-bottom: 40px; display: none; }
+  .palette-section.visible { display: block; }
+  .section-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+  .palettes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .palette-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .palette-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--bg); }
+  .palette-btn.active { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+  .output-section { display: none; margin-bottom: 32px; }
+  .output-section.visible { display: block; }
+  .canvas-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: var(--line); margin-bottom: 24px; }
+  .canvas-cell canvas { width: 100%; height: auto; display: block; }
+  .actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 11px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-primary:hover { background: #3D3B37; border-color: #3D3B37; }
+  .btn-secondary { background: transparent; color: var(--muted); border-color: var(--line); }
+  .btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+  .btn-x {
+    background: #0F1419;
+    color: #FFFFFF;
+    border-color: #0F1419;
+  }
+  .btn-x:hover { background: #2C3640; border-color: #2C3640; }
+  .share-note {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-left: 2px solid #0F1419;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+  }
+  .share-note strong { color: var(--ink); font-weight: 500; }
+  .share-note .tag {
+    display: inline-block;
+    background: #0F1419;
+    color: #fff;
+    padding: 1px 7px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .loading { display: none; padding: 48px 0; text-align: center; }
+  .loading.visible { display: block; }
+  .loading-text { font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+  .loading-bar { width: 120px; height: 1px; background: var(--line); margin: 16px auto 0; position: relative; overflow: hidden; }
+  .loading-bar::after {
+    content: ''; position: absolute; left: -50%; top: 0; width: 50%; height: 100%;
+    background: var(--ink); animation: loadSlide 1s ease-in-out infinite;
+  }
+  @keyframes loadSlide { 0% { left: -50%; } 100% { left: 150%; } }
+  footer {
+    margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line);
+    font-size: 11px; color: var(--muted); letter-spacing: 0.06em; display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+      <span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:22px;letter-spacing:-0.5px;">Silk<span style="font-style:normal;color:var(--muted);">work</span></span>
+    </a>
+    <a href="index.html" style="font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">← ツール一覧</a>
+  </header>
+  <div style="margin-bottom:40px;">
+    <div style="font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">01 / Pop Art</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.5px;margin-bottom:8px;">Pop★Art Face</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.8;">写真をウォーホル風の4色グリッドに変換。3つのパレットから選べます。</div>
+  </div>
+  <div class="upload-section">
+    <div class="drop-zone" id="dropZone">
+      <span class="drop-icon">↑</span>
+      <div class="drop-text">写真をドロップ、またはクリック</div>
+      <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+  <div class="palette-section" id="paletteSection">
+    <div class="section-label">カラーパレット</div>
+    <div class="palettes" id="palettes"></div>
+  </div>
+  <div class="loading" id="loading">
+    <div class="loading-text">Processing</div>
+    <div class="loading-bar"></div>
+  </div>
+  <div class="output-section" id="outputSection">
+    <div class="section-label" style="margin-bottom:16px;">出力</div>
+    <div class="canvas-grid" id="canvasGrid"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="downloadBtn">ダウンロード</button>
+      <button class="btn btn-x" id="tweetBtn">シェア</button>
+      <button class="btn btn-secondary" id="resetBtn">リセット</button>
+    </div>
+    <div class="share-note" id="shareNote" style="display:none;">
+      <span id="shareMethod"></span>
+    </div>
+  </div>
+  <footer>
+    <div style="width:100%">
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+        <span>Pop★Art Face — Warhol-inspired art generator</span>
+        <span>For entertainment purposes only</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:16px;opacity:0.75;">
+        【免責事項】本ツールはアンディ・ウォーホルのスタイルに着想を得た画像変換ツールです。特定の著作物の複製・模倣を目的とするものではありません。
+        本ツールはすべての処理をブラウザ内でローカルに行い、アップロードされた画像をサーバーへ送信・保存することはありません。
+        ユーザーがアップロードする画像の著作権・肖像権・プライバシー権については、アップロードを行った本人が責任を負うものとします。
+        第三者の著作物・肖像を無断で使用することは禁止します。本ツールの利用により生じたいかなる損害についても、制作者は責任を負いません。
+        「Andy Warhol」および関連する商標はThe Andy Warhol Foundation for the Visual Arts, Inc.に帰属します。
+      </div>
+    </div>
+  </footer>
+</div>
+<script>
+const PALETTES = [
+  { name: 'Marilyn', combos: [
+    { bg: '#FFE800', shadow: '#FF6600', skin: '#F4A460', hair: '#2C1A0E', lips: '#FF0050' },
+    { bg: '#00C8FF', shadow: '#004488', skin: '#DEB887', hair: '#8B0000', lips: '#FF1493' },
+    { bg: '#FF0090', shadow: '#660033', skin: '#FFDAB9', hair: '#1A1A1A', lips: '#FF4500' },
+    { bg: '#00FF88', shadow: '#006644', skin: '#CD853F', hair: '#4B0082', lips: '#FF69B4' },
+  ]},
+  { name: 'Electric', combos: [
+    { bg: '#FF2D55', shadow: '#8B0020', skin: '#FFD700', hair: '#00FFFF', lips: '#FF6B00' },
+    { bg: '#7B00FF', shadow: '#2D0060', skin: '#00FF7F', hair: '#FF1493', lips: '#FFFF00' },
+    { bg: '#FF6B00', shadow: '#7A3300', skin: '#00CED1', hair: '#FF00FF', lips: '#00FF00' },
+    { bg: '#00FFFF', shadow: '#006666', skin: '#FF69B4', hair: '#FF4500', lips: '#7B00FF' },
+  ]},
+  { name: 'Retro', combos: [
+    { bg: '#F4E04D', shadow: '#B5860A', skin: '#D4956A', hair: '#3D2B1F', lips: '#C0392B' },
+    { bg: '#E8A0BF', shadow: '#8B3A5A', skin: '#F5CBA7', hair: '#784212', lips: '#922B21' },
+    { bg: '#A8D8EA', shadow: '#1F618D', skin: '#E8BEAC', hair: '#212F3D', lips: '#E74C3C' },
+    { bg: '#B2DFDB', shadow: '#00695C', skin: '#F0C8A0', hair: '#4A235A', lips: '#D35400' },
+  ]},
+];
+let originalImage = null, currentPaletteIdx = 0;
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const paletteSection = document.getElementById('paletteSection');
+const palettesEl = document.getElementById('palettes');
+const loadingEl = document.getElementById('loading');
+const outputSection = document.getElementById('outputSection');
+const canvasGrid = document.getElementById('canvasGrid');
+PALETTES.forEach((p, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'palette-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = p.name;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPaletteIdx = i;
+    if (originalImage) renderAll();
+  });
+  palettesEl.appendChild(btn);
+});
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => { originalImage = img; paletteSection.classList.add('visible'); renderAll(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function renderAll() {
+  loadingEl.classList.add('visible');
+  outputSection.classList.remove('visible');
+  canvasGrid.innerHTML = '';
+  setTimeout(() => {
+    PALETTES[currentPaletteIdx].combos.forEach(combo => {
+      const cell = document.createElement('div');
+      cell.className = 'canvas-cell';
+      const canvas = document.createElement('canvas');
+      cell.appendChild(canvas);
+      canvasGrid.appendChild(cell);
+      renderWarholPanel(canvas, originalImage, combo);
+    });
+    loadingEl.classList.remove('visible');
+    outputSection.classList.add('visible');
+    updateShareNote();
+  }, 100);
+}
+function renderWarholPanel(canvas, img, combo) {
+  const S = 300;
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = combo.bg;
+  ctx.fillRect(0, 0, S, S);
+  const tmp = document.createElement('canvas');
+  const asp = img.width / img.height;
+  let sw = S, sh = S / asp;
+  if (sh < S) { sh = S; sw = S * asp; }
+  tmp.width = sw; tmp.height = sh;
+  const tc = tmp.getContext('2d');
+  tc.drawImage(img, 0, 0, sw, sh);
+  const id = tc.getImageData((sw-S)/2, (sh-S)/2, S, S);
+  const d = id.data;
+  const oc2 = document.createElement('canvas');
+  oc2.width = S; oc2.height = S;
+  const oc = oc2.getContext('2d');
+  const od = oc.createImageData(S, S);
+  for (let i = 0; i < d.length; i += 4) {
+    const lum = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    let lv = lum < 64 ? 0 : lum < 128 ? 1 : lum < 192 ? 2 : 3;
+    let c = lv===0 ? hexToRgb(combo.hair) : lv===1 ? hexToRgb(combo.shadow) : lv===2 ? hexToRgb(combo.skin) : hexToRgb(combo.bg);
+    if (d[i] > 140 && d[i+1] < 100 && d[i+2] < 100) c = hexToRgb(combo.lips);
+    od.data[i]=c.r; od.data[i+1]=c.g; od.data[i+2]=c.b; od.data[i+3]=d[i+3];
+  }
+  oc.putImageData(od, 0, 0);
+  ctx.drawImage(oc2, 0, 0);
+  const cr = hexToRgb(combo.shadow);
+  ctx.save(); ctx.globalAlpha = 0.06;
+  ctx.fillStyle = `rgb(${cr.r},${cr.g},${cr.b})`;
+  for (let y=0;y<S;y+=8) for (let x=0;x<S;x+=8) { ctx.beginPath(); ctx.arc(x,y,1.5,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
+  const vig = ctx.createRadialGradient(S/2,S/2,S*0.3,S/2,S/2,S*0.8);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.25)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,S,S);
+}
+function hexToRgb(h) {
+  const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
+  return r ? {r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)} : {r:0,g:0,b:0};
+}
+// Detect Web Share API support
+const canNativeShare = typeof navigator.share === 'function' && typeof navigator.canShare === 'function';
+
+// Show share note after render
+function updateShareNote() {
+  const note = document.getElementById('shareNote');
+  const method = document.getElementById('shareMethod');
+  note.style.display = 'block';
+  if (canNativeShare) {
+    method.innerHTML = '<span class="tag">モバイル</span><strong>画像を直接添付してシェア</strong> — ネイティブシェアシートが開き、Xに画像をそのまま添付できます。';
+  } else {
+    method.innerHTML = '<span class="tag">PC</span><strong>テキスト投稿 → 画像を手動添付</strong> — Xの投稿画面が開きます。画像はまず「ダウンロード」してから投稿時に添付してください。';
+  }
+}
+
+document.getElementById('tweetBtn').addEventListener('click', () => {
+  const tweetText = 'ウォーホル風ポップアートに変換してみた🎨 #PopArtFace #WarholGenerator';
+
+  if (canNativeShare) {
+    // Web Share API — mobile: attach image directly
+    const cells = canvasGrid.querySelectorAll('canvas');
+    if (!cells.length) return;
+    const S = 300;
+    const ff = document.createElement('canvas');
+    ff.width = S*2+2; ff.height = S*2+2;
+    const ffc = ff.getContext('2d');
+    ffc.fillStyle = '#D6D3CC'; ffc.fillRect(0,0,ff.width,ff.height);
+    const positions = [[0,0],[S+2,0],[0,S+2],[S+2,S+2]];
+    cells.forEach((c,i) => ffc.drawImage(c, positions[i][0], positions[i][1]));
+    ff.toBlob(async (blob) => {
+      const file = new File([blob], 'popart_face.png', { type: 'image/png' });
+      const shareData = { text: tweetText, files: [file] };
+      if (navigator.canShare(shareData)) {
+        try { await navigator.share(shareData); } catch(e) { /* cancelled */ }
+      } else {
+        // fallback if files not supported
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${url}`, '_blank', 'width=550,height=420');
+      }
+    }, 'image/png');
+  } else {
+    // PC: open Twitter intent
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${url}`, '_blank', 'width=550,height=420');
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const S=300, f=document.createElement('canvas');
+  f.width=S*2+2; f.height=S*2+2;
+  const fc=f.getContext('2d');
+  fc.fillStyle='#D6D3CC'; fc.fillRect(0,0,f.width,f.height);
+  canvasGrid.querySelectorAll('canvas').forEach((c,i)=>{
+    fc.drawImage(c,[[0,S+2][i%2],[0,S+2][Math.floor(i/2)]][0],[[0,S+2][i%2],[0,S+2][Math.floor(i/2)]][1]);
+  });
+  const positions=[[0,0],[S+2,0],[0,S+2],[S+2,S+2]];
+  const ff=document.createElement('canvas'); ff.width=S*2+2; ff.height=S*2+2;
+  const ffc=ff.getContext('2d'); ffc.fillStyle='#D6D3CC'; ffc.fillRect(0,0,ff.width,ff.height);
+  canvasGrid.querySelectorAll('canvas').forEach((c,i)=>ffc.drawImage(c,positions[i][0],positions[i][1]));
+  const a=document.createElement('a'); a.download='popart_face.png'; a.href=ff.toDataURL('image/png'); a.click();
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  originalImage=null; canvasGrid.innerHTML='';
+  outputSection.classList.remove('visible'); paletteSection.classList.remove('visible'); fileInput.value='';
+});
+</script>
+</body>
+</html>

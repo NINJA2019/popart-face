@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silhouette Converter — Silkwork</title>
+<meta name="description" content="写真をモノクロ＋単色シルエットに変換。背景色と前景色を自由に組み合わせて独自のウォーホル風作品に。">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F5F3EF;--surface:#EDEBE6;--ink:#1A1916;--muted:#8C8A84;--line:#D6D3CC; }
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { background:var(--bg);color:var(--ink);font-family:'DM Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased; }
+  .page { max-width:880px;margin:0 auto;padding:0 32px 80px; }
+  header { display:flex;align-items:baseline;justify-content:space-between;padding:40px 0 32px;border-bottom:1px solid var(--line);margin-bottom:48px; }
+  .logo-brand { font-family:'DM Serif Display',serif;font-style:italic;font-size:22px;letter-spacing:-0.5px; }
+  .logo-brand .star { font-style:normal;color:var(--muted); }
+  .nav-back { font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;transition:color 0.15s; }
+  .nav-back:hover { color:var(--ink); }
+  .upload-section { margin-bottom:40px; }
+  .drop-zone { border:1px solid var(--line);background:var(--surface);padding:72px 32px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s; }
+  .drop-zone:hover,.drop-zone.drag-over { border-color:var(--ink);background:var(--bg); }
+  .drop-icon { font-size:28px;margin-bottom:20px;display:block;opacity:0.4; }
+  .drop-text { font-family:'Syne',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.2px;margin-bottom:6px; }
+  .drop-sub { font-size:11px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase; }
+  #fileInput { display:none; }
+  .controls-section { margin-bottom:40px;display:none; }
+  .controls-section.visible { display:block; }
+  .section-label { font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px; }
+  .control-row { display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px; }
+  .control-group { display:flex;flex-direction:column;gap:8px; }
+  .control-label { font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase; }
+
+  /* Color picker rows */
+  .color-grid { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+  .color-swatch {
+    width:36px;height:36px;border:2px solid transparent;cursor:pointer;transition:transform 0.15s,border-color 0.15s;
+    position:relative;
+  }
+  .color-swatch.active { border-color:var(--ink);transform:scale(1.15); }
+  .color-swatch.active::after { content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(0,0,0,0.5); }
+
+  .threshold-wrap { display:flex;flex-direction:column;gap:8px; }
+  input[type=range] { width:200px;accent-color:var(--ink); }
+  .threshold-val { font-size:11px;color:var(--muted); }
+
+  .style-btns { display:flex;gap:8px; }
+  .style-btn { padding:8px 16px;border:1px solid var(--line);background:var(--surface);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.15s; }
+  .style-btn:hover,.style-btn.active { border-color:var(--ink);background:var(--ink);color:var(--bg); }
+
+  .output-section { display:none; }
+  .output-section.visible { display:block; }
+  .canvas-output { margin-bottom:24px;display:flex;gap:12px;flex-wrap:wrap; }
+  .canvas-output canvas { max-width:100%;display:block; }
+
+  .loading { display:none;padding:48px 0;text-align:center; }
+  .loading.visible { display:block; }
+  .loading-text { font-size:11px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase; }
+  .loading-bar { width:120px;height:1px;background:var(--line);margin:16px auto 0;position:relative;overflow:hidden; }
+  .loading-bar::after { content:'';position:absolute;left:-50%;top:0;width:50%;height:100%;background:var(--ink);animation:loadSlide 1s ease-in-out infinite; }
+  @keyframes loadSlide { 0%{left:-50%}100%{left:150%} }
+  .actions { display:flex;gap:10px;align-items:center; }
+  .btn { padding:11px 28px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;border:1px solid;cursor:pointer;transition:all 0.15s; }
+  .btn-primary { background:var(--ink);color:var(--bg);border-color:var(--ink); }
+  .btn-primary:hover { background:#3D3B37; }
+  .btn-secondary { background:transparent;color:var(--muted);border-color:var(--line); }
+  .btn-secondary:hover { color:var(--ink);border-color:var(--ink); }
+  .btn-x { background:#0F1419;color:#fff;border-color:#0F1419; }
+  .btn-x:hover { background:#2C3640; }
+  footer { margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);letter-spacing:0.06em;line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo-brand">Silk<span class="star">work</span></div>
+    <a href="index.html" class="nav-back">← ツール一覧</a>
+  </header>
+
+  <div style="margin-bottom:40px;">
+    <div style="font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">04 / Silhouette</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.5px;margin-bottom:8px;">Silhouette Converter</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.8;">写真をモノクロ＋単色シルエットに変換。背景色・前景色・しきい値を自由に調整できます。</div>
+  </div>
+
+  <div class="upload-section">
+    <div class="drop-zone" id="dropZone">
+      <span class="drop-icon">↑</span>
+      <div class="drop-text">写真をドロップ、またはクリック</div>
+      <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <div class="controls-section" id="controlsSection">
+
+    <div class="section-label">背景色</div>
+    <div class="color-grid" id="bgColors"></div>
+
+    <div class="section-label">前景色（シルエット）</div>
+    <div class="color-grid" id="fgColors"></div>
+
+    <div class="control-row">
+      <div class="control-group threshold-wrap">
+        <div class="control-label">しきい値 <span id="thresholdVal" class="threshold-val">128</span></div>
+        <input type="range" id="threshold" min="30" max="220" value="128">
+      </div>
+      <div class="control-group">
+        <div class="control-label">スタイル</div>
+        <div class="style-btns" id="styleBtns">
+          <button class="style-btn active" data-style="hard">Hard</button>
+          <button class="style-btn" data-style="soft">Soft</button>
+          <button class="style-btn" data-style="posterize">Poster</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">バリエーション</div>
+        <select id="variantSelect" style="padding:8px 14px;border:1px solid var(--line);background:var(--surface);font-family:'DM Mono',monospace;font-size:12px;color:var(--ink);outline:none;appearance:none;width:140px;">
+          <option value="1">1枚</option>
+          <option value="4" selected>4枚（色違い）</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="generateBtn">生成する</button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="loading-text">Processing</div>
+    <div class="loading-bar"></div>
+  </div>
+
+  <div class="output-section" id="outputSection">
+    <div class="section-label" style="margin-bottom:16px;">出力</div>
+    <div class="canvas-output" id="canvasOutput"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="downloadBtn">ダウンロード</button>
+      <button class="btn btn-x" id="shareBtn">シェア</button>
+      <button class="btn btn-secondary" id="resetBtn">リセット</button>
+    </div>
+  </div>
+
+  <footer>
+    【免責事項】本ツールはアンディ・ウォーホルのスタイルに着想を得た画像変換ツールです。すべての処理はブラウザ内で完結し、画像はサーバーへ送信・保存されません。「Andy Warhol」および関連する商標はThe Andy Warhol Foundation for the Visual Arts, Inc.に帰属します。
+  </footer>
+</div>
+
+<script>
+const BG_COLORS = ['#FFE800','#FF0090','#00D4FF','#00FF88','#FF4500','#7B00FF','#FFFFFF','#1A1916','#F5F3EF','#E8D5B0','#FF69B4','#00BFFF'];
+const FG_COLORS = ['#1A1916','#FF0090','#FFE800','#00D4FF','#FFFFFF','#FF4500','#7B00FF','#00FF88','#8B0000','#003366','#4B0082','#2F4F4F'];
+
+let originalImage = null;
+let selectedBg = BG_COLORS[0];
+let selectedFg = FG_COLORS[0];
+let currentStyle = 'hard';
+
+function buildSwatches(containerId, colors, getSelected, setSelected) {
+  const el = document.getElementById(containerId);
+  colors.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch' + (c===getSelected()?' active':'');
+    sw.style.background = c;
+    sw.style.border = c==='#FFFFFF'||c==='#F5F3EF' ? '2px solid #D6D3CC' : '2px solid transparent';
+    sw.addEventListener('click', () => {
+      setSelected(c);
+      el.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+      sw.classList.add('active');
+    });
+    el.appendChild(sw);
+  });
+}
+
+buildSwatches('bgColors', BG_COLORS, ()=>selectedBg, v=>{ selectedBg=v; });
+buildSwatches('fgColors', FG_COLORS, ()=>selectedFg, v=>{ selectedFg=v; });
+
+document.getElementById('threshold').addEventListener('input', e => {
+  document.getElementById('thresholdVal').textContent = e.target.value;
+});
+
+document.querySelectorAll('.style-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.style-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStyle = btn.dataset.style;
+  });
+});
+
+const dropZone=document.getElementById('dropZone');
+const fileInput=document.getElementById('fileInput');
+const controlsSection=document.getElementById('controlsSection');
+const loadingEl=document.getElementById('loading');
+const outputSection=document.getElementById('outputSection');
+const canvasOutput=document.getElementById('canvasOutput');
+
+dropZone.addEventListener('click',()=>fileInput.click());
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{
+  e.preventDefault();dropZone.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')) loadImage(f);
+});
+fileInput.addEventListener('change',e=>{if(e.target.files[0]) loadImage(e.target.files[0]);});
+
+function loadImage(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{originalImage=img;controlsSection.classList.add('visible');};
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('generateBtn').addEventListener('click', generate);
+
+function generate(){
+  if(!originalImage) return;
+  loadingEl.classList.add('visible');
+  outputSection.classList.remove('visible');
+  canvasOutput.innerHTML='';
+  setTimeout(()=>{
+    const threshold=parseInt(document.getElementById('threshold').value);
+    const variants=parseInt(document.getElementById('variantSelect').value);
+    const altPairs = [
+      {bg: selectedBg, fg: selectedFg},
+      {bg: selectedFg, fg: selectedBg},
+      {bg: BG_COLORS[Math.floor(Math.random()*BG_COLORS.length)], fg: selectedFg},
+      {bg: selectedBg, fg: FG_COLORS[Math.floor(Math.random()*FG_COLORS.length)]},
+    ];
+    const count = variants===1 ? 1 : 4;
+    if(count===4){
+      // 2x2 combined canvas
+      const S=280,GAP=3;
+      const final=document.createElement('canvas');
+      final.width=S*2+GAP; final.height=S*2+GAP;
+      final.style.maxWidth='100%';
+      const fc=final.getContext('2d');
+      fc.fillStyle='#D6D3CC'; fc.fillRect(0,0,final.width,final.height);
+      [[0,0],[S+GAP,0],[0,S+GAP],[S+GAP,S+GAP]].forEach((pos,i)=>{
+        drawSilhouette(fc, originalImage, altPairs[i].fg, altPairs[i].bg, threshold, currentStyle, pos[0], pos[1], S);
+      });
+      canvasOutput.appendChild(final);
+    } else {
+      const S=560;
+      const canvas=document.createElement('canvas');
+      canvas.width=S; canvas.height=S;
+      canvas.style.maxWidth='100%';
+      const ctx=canvas.getContext('2d');
+      drawSilhouette(ctx, originalImage, selectedFg, selectedBg, threshold, currentStyle, 0, 0, S);
+      canvasOutput.appendChild(canvas);
+    }
+    loadingEl.classList.remove('visible');
+    outputSection.classList.add('visible');
+  },120);
+}
+
+function drawSilhouette(ctx, img, fgColor, bgColor, threshold, style, ox, oy, S){
+  ctx.fillStyle=bgColor;
+  ctx.fillRect(ox,oy,S,S);
+  const tmp=document.createElement('canvas');
+  const asp=img.width/img.height;
+  let sw=S,sh=S/asp;
+  if(sh<S){sh=S;sw=S*asp;}
+  tmp.width=sw;tmp.height=sh;
+  const tc=tmp.getContext('2d');
+  tc.drawImage(img,0,0,sw,sh);
+  const offX=(sw-S)/2,offY=(sh-S)/2;
+  const id=tc.getImageData(offX,offY,S,S),d=id.data;
+  const oc2=document.createElement('canvas');oc2.width=S;oc2.height=S;
+  const oc=oc2.getContext('2d'),od=oc.createImageData(S,S);
+  const fg=hexToRgb(fgColor), bg=hexToRgb(bgColor);
+
+  for(let i=0;i<d.length;i+=4){
+    const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    let r,g,b;
+    if(style==='hard'){
+      const isFg=lum<threshold;
+      r=isFg?fg.r:bg.r; g=isFg?fg.g:bg.g; b=isFg?fg.b:bg.b;
+    } else if(style==='soft'){
+      const t=Math.max(0,Math.min(1,(lum-(threshold-30))/60));
+      r=Math.round(fg.r*(1-t)+bg.r*t);
+      g=Math.round(fg.g*(1-t)+bg.g*t);
+      b=Math.round(fg.b*(1-t)+bg.b*t);
+    } else {
+      // posterize 3 levels
+      let lv=lum<threshold*0.5?0:lum<threshold?1:2;
+      const mix=[0,0.5,1][lv];
+      r=Math.round(fg.r*(1-mix)+bg.r*mix);
+      g=Math.round(fg.g*(1-mix)+bg.g*mix);
+      b=Math.round(fg.b*(1-mix)+bg.b*mix);
+    }
+    od.data[i]=r;od.data[i+1]=g;od.data[i+2]=b;od.data[i+3]=d[i+3];
+  }
+  oc.putImageData(od,0,0);
+  ctx.drawImage(oc2,ox,oy);
+}
+
+function hexToRgb(h){
+  const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
+  return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:{r:0,g:0,b:0};
+}
+
+document.getElementById('downloadBtn').addEventListener('click',()=>{
+  const c=canvasOutput.querySelector('canvas');
+  if(!c) return;
+  const a=document.createElement('a');a.download='silhouette.png';a.href=c.toDataURL('image/png');a.click();
+});
+
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  const text='ウォーホル風シルエットに変換してみた✦ #Silkwork #Silhouette';
+  const c=canvasOutput.querySelector('canvas');
+  if(typeof navigator.share==='function'&&c){
+    c.toBlob(async blob=>{
+      const file=new File([blob],'silhouette.png',{type:'image/png'});
+      const data={text,files:[file]};
+      if(navigator.canShare&&navigator.canShare(data)){
+        try{await navigator.share(data);}catch(e){}
+      } else {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`,'_blank','width=550,height=420');
+      }
+    });
+  } else {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`,'_blank','width=550,height=420');
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  originalImage=null;canvasOutput.innerHTML='';
+  outputSection.classList.remove('visible');controlsSection.classList.remove('visible');fileInput.value='';
+});
+</script>
+</body>
+</html>
