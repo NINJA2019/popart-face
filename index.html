@@ -565,6 +565,77 @@
   .date-preview { font-family:'VT323',monospace; font-size:20px; color:#FF8C00; letter-spacing:0.1em; margin-top:6px; text-shadow:0 0 6px rgba(255,140,0,0.5); }
   .intensity-row { display:flex; align-items:center; gap:12px; margin-bottom:4px; }
 
+
+  /* ════════════════════════════════════════════════
+     MOBILE  (max-width: 600px)
+  ════════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+
+    /* デスクトップ領域 */
+    .desktop { padding: 8px 4px 44px; }
+
+    /* アイコングリッド：3列 */
+    .icon-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+    .desk-icon { width: auto; padding: 6px 2px; }
+    .icon-label { font-size: 9px; text-align: center; }
+
+    /* タスクバー：少し高く */
+    .taskbar { height: 44px; padding: 0 8px; gap: 6px; }
+    .start-btn { height: 34px; padding: 0 12px; font-size: 13px; }
+    .taskbar-clock { font-size: 12px; }
+
+    /* ツールオーバーレイ：フルスクリーン */
+    .tool-overlay { bottom: 44px; }
+    .tool-win {
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      box-shadow: none !important;
+    }
+
+    /* タイトルバー */
+    .tool-win-titlebar { padding: 5px 8px; }
+    .tool-win-title { font-size: 11px; }
+
+    /* メニューバー非表示（スペース節約）*/
+    .tool-win-menubar { display: none; }
+
+    /* パンくずバー */
+    .tool-win-backbar { padding: 5px 8px; }
+    .tool-win-backbtn { height: 28px; font-size: 12px; padding: 0 12px; }
+    .tool-win-breadcrumb { display: none; }
+
+    /* スクロールエリア */
+    .tool-win-body { padding: 12px 14px 20px; -webkit-overflow-scrolling: touch; }
+
+    /* スタートメニュー */
+    .start-menu { width: 180px; }
+    .start-item { font-size: 12px; padding: 8px 12px; }
+    .start-sep { margin: 4px 0; }
+
+    /* ドロップゾーン：コンパクトに */
+    .drop-zone { padding: 28px 16px; }
+    .drop-icon { font-size: 24px; margin-bottom: 8px; }
+    .drop-text { font-size: 12px; }
+
+    /* モードカード（GBフィルター）*/
+    .mode-cards { grid-template-columns: repeat(3, 1fr) !important; gap: 4px; }
+    .mc-name { font-size: 9px; }
+    .mc-sub  { display: none; }
+
+    /* ボタン */
+    .btn { height: 32px; font-size: 12px; }
+    .btn-row { gap: 6px; }
+
+    /* Aboutダイアログ */
+    .dialog { width: calc(100vw - 32px) !important; max-width: 320px; }
+  }
+
 </style>
 </head>
 <body>
@@ -583,7 +654,7 @@
       <div class="dialog-name">ninnin</div>
       <div class="dialog-handle">@ninnin8672</div>
       <div class="dialog-desc">
-        懐かしい質感をあなたの写真に。<br><br>
+        Nostalgic Amnesia は、レトロな質感を写真に加えるブラウザ完結の無料画像変換ツール集です。80〜90年代の空気を6つのツールで再現します。<br><br>
         要望・問題がありましたら File → About からご連絡ください。<br><br>
         画像はサーバーに送信されません。
       </div>
@@ -2204,11 +2275,16 @@ document.addEventListener('DOMContentLoaded', function(){
     var clicks=0, timer=null;
     var href = icon.getAttribute('href');
     var spa  = icon.getAttribute('data-spa');
+    var isMobile = function(){ return window.innerWidth <= 600; };
     icon.addEventListener('click', function(e){
       e.preventDefault(); clicks++;
       document.querySelectorAll('.desk-icon').forEach(function(i){ i.style.outline='none'; });
       icon.style.outline = '1px dotted rgba(255,255,255,0.8)';
-      if (clicks === 1) {
+      // モバイルはシングルタップで開く
+      if (isMobile()) {
+        clicks = 0;
+        if (spa) { openTool(spa); }
+      } else if (clicks === 1) {
         timer = setTimeout(function(){ clicks=0; }, 400);
       } else {
         clearTimeout(timer); clicks = 0;
