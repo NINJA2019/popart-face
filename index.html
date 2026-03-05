@@ -636,7 +636,20 @@
     .dialog { width: calc(100vw - 32px) !important; max-width: 320px; }
   }
 
+
+  /* 出力canvas 選択スタイル */
+  #crt_outputGrid canvas, #film_filmGrid canvas {
+    cursor: pointer;
+    transition: outline 0.1s;
+  }
+  #crt_outputGrid canvas.selected,
+  #film_filmGrid canvas.selected {
+    outline: 3px solid var(--win-navy);
+    box-shadow: 0 0 0 1px var(--win-navy);
+  }
+
 </style>
+
 </head>
 <body>
 
@@ -805,15 +818,9 @@
       <span>ユーザーがアップロードする画像の著作権・肖像権については本人が責任を負います</span>
     </div>
   </div>
-
-  <div class="footer-txt">
-    © 2025 Nostalgic Amnesia &nbsp;·&nbsp; すべての処理はブラウザ内で完結します &nbsp;·&nbsp; <a href="https://twitter.com/ninnin8672" target="_blank" style="color:rgba(255,255,255,0.7);">@ninnin8672</a>
-  </div>
-
-</div><!-- /desktop -->
+</div>
 
 <script>
-
 // ── FUNCTION DEFINITIONS (hoisted — safe for onclick= attributes) ──
 
 function updateClock(){
@@ -853,8 +860,10 @@ function toggleStartMenu(){
 function closeStartMenu(){
   var menu=document.getElementById('startMenu'),btn=document.getElementById('startBtn');
   if(menu) menu.classList.remove('visible');
-  if(btn)  btn.style.borderColor='';
+  if(btn)  btn.style.borderColor
+='';
 }
+
 
 function openTool(id) {
   var overlay = document.getElementById(id+'Overlay');
@@ -1419,11 +1428,18 @@ document.getElementById('film_generateBtn').addEventListener('click', function()
   setTimeout(function(){
     FILMS.forEach(function(film){
       var c=renderFilm(originalImage, film, intensity, showDate, dateStr);
+      c.addEventListener('click', function(){
+        filmGrid.querySelectorAll('canvas').forEach(function(cv){ cv.classList.remove('selected'); });
+        this.classList.add('selected');
+      });
       filmGrid.appendChild(c);
     });
+    // 1枚目を自動選択
+    var first = filmGrid.querySelector('canvas');
+    if(first) first.classList.add('selected');
     loading.classList.remove('visible');
     outputSection.classList.add('visible');
-    document.getElementById('film_statusMsg').textContent='生成完了 — 4銘柄';
+    document.getElementById('film_statusMsg').textContent='生成完了 — クリックで選択・保存';
   }, 80);
 });
 
@@ -1558,17 +1574,17 @@ function renderFilm(img, film, intensity, showDate, dateStr){
 
 // Download
 document.getElementById('film_downloadBtn').addEventListener('click', function(){
-  var canvases=document.getElementById('film_filmGrid').querySelectorAll('canvas');
-  if(!canvases.length) return;
-  var S=480,G=3;
-  var fin=document.createElement('canvas'); fin.width=S*2+G; fin.height=S*2+G;
-  var fc=fin.getContext('2d'); fc.fillStyle='#111'; fc.fillRect(0,0,fin.width,fin.height);
-  [[0,0],[S+G,0],[0,S+G],[S+G,S+G]].forEach(function(p,i){
-    if(canvases[i]) fc.drawImage(canvases[i],p[0],p[1]);
-  });
-  var a=document.createElement('a'); a.download='film-photo.png';
-  a.href=fin.toDataURL('image/png'); a.click();
-});
+  var sel = document.getElementById('film_filmGrid').querySelector('canvas.selected');
+  if(!sel){ document.getElementById('film_statusMsg').textContent='キャンバスを選択してください'; return; }
+  sel.toBlob(function(blob){
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='film_filter.png';
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+    document.getElementById('film_statusMsg').textContent='保存しました';
+  },'image/png');
+});;
 
 // Share
 document.getElementById('film_shareBtn').addEventListener('click', function(){
@@ -1693,8 +1709,15 @@ document.getElementById('crt_generateBtn').addEventListener('click', function(){
     while (toRender.length < 4) toRender.push(toRender[toRender.length-1]);
     toRender.slice(0,4).forEach(function(variant){
       var c = renderCRT(originalImage, variant, intensity);
+      c.addEventListener('click', function(){
+        outputGrid.querySelectorAll('canvas').forEach(function(cv){ cv.classList.remove('selected'); });
+        this.classList.add('selected');
+      });
       outputGrid.appendChild(c);
     });
+    // 1枚目を自動選択
+    var first = outputGrid.querySelector('canvas');
+    if(first) first.classList.add('selected');
     loadingEl.classList.remove('visible');
     outputSection.classList.add('visible');
   }, 120);
@@ -1868,18 +1891,16 @@ function renderCRT(img, variant, intensity) {
 
 // ── DOWNLOAD ─────────────────────────────────────────────────
 document.getElementById('crt_downloadBtn').addEventListener('click', function(){
-  var canvases = outputGrid.querySelectorAll('canvas');
-  if (!canvases.length) return;
-  var S=480, GAP=3;
-  var fin = document.createElement('canvas');
-  fin.width=S*2+GAP; fin.height=S*2+GAP;
-  var fc = fin.getContext('2d');
-  fc.fillStyle='#D6D3CC'; fc.fillRect(0,0,fin.width,fin.height);
-  [[0,0],[S+GAP,0],[0,S+GAP],[S+GAP,S+GAP]].forEach(function(p,i){
-    if (canvases[i]) fc.drawImage(canvases[i],p[0],p[1]);
-  });
-  var a = document.createElement('a');
-  a.download='crt-filter.png'; a.href=fin.toDataURL('image/png'); a.click();
+  var sel = outputGrid.querySelector('canvas.selected');
+  if(!sel){ document.getElementById('crt_statusMsg').textContent='キャンバスを選択してください'; return; }
+  sel.toBlob(function(blob){
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='crt_filter.png';
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+    document.getElementById('crt_statusMsg').textContent='保存しました';
+  },'image/png');
 });
 
 // ── SHARE ─────────────────────────────────────────────────────
@@ -1907,15 +1928,6 @@ document.getElementById('crt_shareBtn').addEventListener('click', function(){
 });
 
 // ── RESET ─────────────────────────────────────────────────────
-// Clock
-function updateClock() {
-  var now = new Date();
-  var h = String(now.getHours()).padStart(2,'0');
-  var m = String(now.getMinutes()).padStart(2,'0');
-  var _clk=document.getElementById('clock'); if(_clk) _clk.textContent=h+':'+m;
-}
-updateClock();
-setInterval(updateClock, 10000);
 
 // Status bar updates
 var origLoad = document.getElementById('crt_generateBtn').addEventListener;
@@ -2198,6 +2210,56 @@ function downloadCanvas(cv, name) {
   });
 
 };
+
+function updateClock() {
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2,'0');
+  var m = String(now.getMinutes()).padStart(2,'0');
+  var _clk = document.getElementById('clock');
+  if(_clk) _clk.textContent = h+':'+m;
+}
+
+function toggleMenu() {
+  var mb = document.getElementById('mainMenubar');
+  if (!mb) return;
+  mb.classList.toggle('open');
+}
+
+function closeMenu() {
+  var mb = document.getElementById('mainMenubar');
+  if (mb) mb.classList.remove('open');
+}
+
+function openAbout() {
+  var ov = document.getElementById('aboutOverlay');
+  if (ov) ov.style.display = 'flex';
+}
+
+function closeAbout() {
+  var ov = document.getElementById('aboutOverlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function toggleStartMenu() {
+  var menu = document.getElementById('startMenu');
+  var btn  = document.getElementById('startBtn');
+  if (!menu) return;
+  var visible = menu.classList.contains('visible');
+  if (visible) {
+    menu.classList.remove('visible');
+    if (btn) btn.style.borderColor = '';
+  } else {
+    menu.classList.add('visible');
+    if (btn) btn.style.borderColor = 'var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark)';
+  }
+}
+
+function closeStartMenu() {
+  var menu = document.getElementById('startMenu');
+  var btn  = document.getElementById('startBtn');
+  if (menu) menu.classList.remove('visible');
+  if (btn)  btn.style.borderColor = '';
+}
 
 document.addEventListener('DOMContentLoaded', function(){
 
