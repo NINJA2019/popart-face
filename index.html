@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nostalgic Amnesia</title>
-<meta name="description" content="レトロな質感を写真に。ポップフィルター・ポラロイド・グリッド・シルエット・ブラウン管・フィルムフォト。すべてブラウザ完結の無料画像変換ツール集。">
+<meta name="description" content="レトロな質感を写真に。ポップフィルター・ポラロイド・ブラウン管・フィルムフォト・GBフィルター。すべてブラウザ完結の無料画像変換ツール集。">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -796,8 +796,6 @@
           <span style="color:var(--win-navy);">2025-XX-XX</span> レトロブラウン管フィルター 追加<br>
           <span style="color:var(--win-navy);">2025-XX-XX</span> サイト名を Nostalgic Amnesia に変更<br>
           <span style="color:var(--win-navy);">2025-XX-XX</span> Win95 デザインに全面リニューアル<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> シルエットコンバーター 追加<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> リピーティショングリッド 追加<br>
           <span style="color:var(--win-navy);">2025-XX-XX</span> ポラロイドジェネレーター 追加<br>
           <span style="color:var(--win-navy);">2025-XX-XX</span> ポップフィルター 追加 / 公開
         </div>
@@ -2414,123 +2412,6 @@ document.addEventListener('DOMContentLoaded', function(){
         <button class="btn btn-primary" id="polaroid_downloadBtn">💾 保存</button>
         <button class="btn btn-x" id="polaroid_shareBtn">SHARE</button>
         <button class="btn btn-secondary" id="polaroid_resetBtn">✕ リセット</button>
-      </div>
-    </div>
-    <div class="status-bar"><span>準備完了</span><span>Browser Canvas API</span><span>© 2025 Nostalgic Amnesia</span></div>
-    </div>
-    <div class="tool-win-footer">すべての処理はブラウザ内で完結 · © 2025 Nostalgic Amnesia</div>
-  </div>
-</div>
-    </div>
-    <div class="tool-win-menubar">
-      <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
-    </div>
-    <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('grid')">◀ デスクトップに戻る</button>
-      <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; リピーティショングリッド</span>
-    </div>
-    <div class="tool-win-body">
-<div class="tool-eyebrow">03 / リピーティショングリッド</div>
-    <div class="tool-title">リピーティショングリッド<span class="blink">_</span></div>
-    <div class="win-inset" style="padding:0;margin-bottom:16px;">
-      <div class="drop-zone" id="grid_dropZone">
-        <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
-        <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
-      </div>
-    </div>
-    <input type="file" id="grid_fileInput" accept="image/*">
-
-    <div class="controls-section" id="grid_controlsSection">
-      <div class="win-panel">
-        <div class="section-label">カラースキーム</div>
-        <div id="grid_colorPresets"></div>
-      </div>
-      <div class="win-panel">
-        <div class="section-label">グリッドサイズ</div>
-        <select id="grid_gridSelect" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 8px;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);background:var(--win-bg);">
-          <option value="2x2">2×2</option>
-          <option value="3x3">3×3</option>
-          <option value="2x3">2×3</option>
-          <option value="4x4">4×4</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" id="grid_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
-    </div>
-    <div class="loading" id="grid_loading">
-      <div class="loading-text">PROCESSING...</div>
-      <div class="loading-bar-wrap"><div class="loading-bar-inner"></div></div>
-    </div>
-    <div class="output-section" id="grid_outputSection">
-      <div class="section-label" style="margin-bottom:8px;">出力プレビュー</div>
-      <div class="canvas-wrap" id="grid_outputCanvas"></div>
-      <div class="actions">
-        <button class="btn btn-primary" id="grid_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="grid_shareBtn">SHARE</button>
-        <button class="btn btn-secondary" id="grid_resetBtn">✕ リセット</button>
-      </div>
-    </div>
-    <div class="status-bar"><span>準備完了</span><span>Browser Canvas API</span><span>© 2025 Nostalgic Amnesia</span></div>
-    </div>
-    <div class="tool-win-footer">すべての処理はブラウザ内で完結 · © 2025 Nostalgic Amnesia</div>
-  </div>
-</div>
-    </div>
-    <div class="tool-win-menubar">
-      <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
-    </div>
-    <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('silhouette')">◀ デスクトップに戻る</button>
-      <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; シルエットコンバーター</span>
-    </div>
-    <div class="tool-win-body">
-<div class="tool-eyebrow">04 / シルエットコンバーター</div>
-    <div class="tool-title">シルエットコンバーター<span class="blink">_</span></div>
-    <div class="win-inset" style="padding:0;margin-bottom:16px;">
-      <div class="drop-zone" id="silhouette_dropZone">
-        <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
-        <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
-      </div>
-    </div>
-    <input type="file" id="silhouette_fileInput" accept="image/*">
-
-    <div class="controls-section" id="silhouette_controlsSection">
-      <div class="win-panel">
-        <div class="section-label">背景色</div>
-        <div class="color-grid" id="silhouette_bgColorGrid"></div>
-      </div>
-      <div class="win-panel">
-        <div class="section-label">前景色（シルエット）</div>
-        <div class="color-grid" id="silhouette_fgColorGrid"></div>
-      </div>
-      <div class="win-panel">
-        <div class="section-label">しきい値</div>
-        <div class="threshold-row">
-          <input type="range" id="silhouette_threshold" min="30" max="220" value="128">
-          <span id="silhouette_thresholdVal" style="font-size:11px;min-width:32px;font-family:'Share Tech Mono',monospace;">128</span>
-        </div>
-        <div class="section-label" style="margin-top:8px;">スタイル</div>
-        <div class="filter-btns" id="silhouette_styleButtons"></div>
-        <div class="section-label" style="margin-top:8px;">バリエーション</div>
-        <select id="silhouette_variantSelect" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 8px;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);background:var(--win-bg);">
-          <option value="1">1枚</option>
-          <option value="4">4枚（2×2）</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" id="silhouette_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
-    </div>
-    <div class="loading" id="silhouette_loading">
-      <div class="loading-text">PROCESSING...</div>
-      <div class="loading-bar-wrap"><div class="loading-bar-inner"></div></div>
-    </div>
-    <div class="output-section" id="silhouette_outputSection">
-      <div class="section-label" style="margin-bottom:8px;">出力プレビュー</div>
-      <div class="canvas-wrap" id="silhouette_canvasOutput"></div>
-      <div class="actions">
-        <button class="btn btn-primary" id="silhouette_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="silhouette_shareBtn">SHARE</button>
-        <button class="btn btn-secondary" id="silhouette_resetBtn">✕ リセット</button>
       </div>
     </div>
     <div class="status-bar"><span>準備完了</span><span>Browser Canvas API</span><span>© 2025 Nostalgic Amnesia</span></div>
