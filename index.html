@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="google-site-verification" content="cDvC3u_gdZFTY7l9Sntjdv9lIHfljE9BBobE2kRxk7o" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nostalgic Amnesia</title>
 <meta name="description" content="レトロな質感を写真に。ポップフィルター・ポラロイド・ブラウン管・フィルムフォト・GBフィルター。すべてブラウザ完結の無料画像変換ツール集。">
@@ -808,15 +809,14 @@
         </div>
       </div>
       <div class="about-panel">
-        <div class="about-panel-title">Appdate Log</div>
-        <div class="about-panel-text" style="font-size:9.5px;line-height:2;height:62px;overflow-y:scroll;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);padding:4px 6px;background:#fff;">
-          <span style="color:var(--win-navy);">2025-XX-XX</span> フィルムフォトフィルター 追加<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> レトロブラウン管フィルター 追加<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> サイト名を Nostalgic Amnesia に変更<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> Win95 デザインに全面リニューアル<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> ポラロイドジェネレーター 追加<br>
-          <span style="color:var(--win-navy);">2025-XX-XX</span> ポップフィルター 追加 / 公開
-        </div>
+        <div class="about-panel-title">        <div class="about-panel-title">Info</div>
+        <div class="about-panel-text">
+          ブラウザ完結・サーバー送信なし<br>
+          無料 / Free<br>
+          Ver. 1.0.0<br>
+          © 2025 にんじゃ3歳
+        </div> Win95 デザインに全面リニューアル<br>
+          <span style="color:var(--win-navy);">
       </div>
     </div>
     <div class="status-bar">
@@ -1043,51 +1043,22 @@ function hexToRgb(h) {
   const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
   return r ? {r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)} : {r:0,g:0,b:0};
 }
-// Detect Web Share API support
-const canNativeShare = typeof navigator.share === 'function' && typeof navigator.canShare === 'function';
 
-// Show share note after render
-function updateShareNote() {
-  const note = document.getElementById('popartconverter_shareNote');
-  const method = document.getElementById('popartconverter_shareMethod');
-  note.style.display = 'block';
-  if (canNativeShare) {
-    method.innerHTML = '<span class="tag">モバイル</span><strong>画像を直接添付してシェア</strong> — ネイティブシェアシートが開き、Xに画像をそのまま添付できます。';
-  } else {
-    method.innerHTML = '<span class="tag">PC</span><strong>テキスト投稿 → 画像を手動添付</strong> — Xの投稿画面が開きます。画像はまず「ダウンロード」してから投稿時に添付してください。';
-  }
-}
 
-document.getElementById('popartconverter_tweetBtn').addEventListener('click', () => {
-  const tweetText = 'ウォーホル風ポップアートに変換してみた🎨 #PopArtFace #WarholGenerator';
+document.getElementById('popartconverter_shareBtn').addEventListener('click', function(){
+  var cells = canvasGrid ? canvasGrid.querySelectorAll('canvas') : [];
+  if(!cells.length) return;
+  var S=300, ff=document.createElement('canvas');
+  ff.width=S*2+2; ff.height=S*2+2;
+  var ffc=ff.getContext('2d'); ffc.fillStyle='#D6D3CC'; ffc.fillRect(0,0,ff.width,ff.height);
+  var pos=[[0,0],[S+2,0],[0,S+2],[S+2,S+2]];
+  cells.forEach(function(c,i){ ffc.drawImage(c,pos[i][0],pos[i][1]); });
+  copyCanvasToClipboard(ff, 'popartconverter_statusMsg');
+});
 
-  if (canNativeShare) {
-    // Web Share API — mobile: attach image directly
-    const cells = canvasGrid.querySelectorAll('canvas');
-    if (!cells.length) return;
-    const S = 300;
-    const ff = document.createElement('canvas');
-    ff.width = S*2+2; ff.height = S*2+2;
-    const ffc = ff.getContext('2d');
-    ffc.fillStyle = '#D6D3CC'; ffc.fillRect(0,0,ff.width,ff.height);
-    const positions = [[0,0],[S+2,0],[0,S+2],[S+2,S+2]];
-    cells.forEach((c,i) => ffc.drawImage(c, positions[i][0], positions[i][1]));
-    ff.toBlob(async (blob) => {
-      const file = new File([blob], 'popart_face.png', { type: 'image/png' });
-      const shareData = { text: tweetText, files: [file] };
-      if (navigator.canShare(shareData)) {
-        try { await navigator.share(shareData); } catch(e) { /* cancelled */ }
-      } else {
-        // fallback if files not supported
-        const url = encodeURIComponent(window.location.href);
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${url}`, '_blank', 'width=550,height=420');
-      }
-    }, 'image/png');
-  } else {
-    // PC: open Twitter intent
-    const url = encodeURIComponent(window.location.href);
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${url}`, '_blank', 'width=550,height=420');
-  }
+document.getElementById('popartconverter_tweetBtn').addEventListener('click', function(){
+  var text = encodeURIComponent('ウォーホル風ポップアートに変換してみた🎨 #NostalgicAmnesia #ポップアート\nhttps://ninja2019.github.io/popart-face/');
+  window.open('https://twitter.com/intent/tweet?text='+text, '_blank');
 });
 
 document.getElementById('popartconverter_downloadBtn').addEventListener('click', () => {
@@ -1284,23 +1255,14 @@ document.getElementById('polaroid_downloadBtn').addEventListener('click', () => 
   a.click();
 });
 
-document.getElementById('polaroid_shareBtn').addEventListener('click', () => {
-  const text = 'ポラロイド風に変換してみた📷 #Nostalgic Amnesia #ポラロイド';
-  if (typeof navigator.share === 'function') {
-    const canvases = polaroidWrap.querySelectorAll('canvas');
-    if (!canvases.length) return;
-    canvases[0].toBlob(async blob => {
-      const file = new File([blob], 'polaroid.png', { type: 'image/png' });
-      const data = { text, files: [file] };
-      if (navigator.canShare && navigator.canShare(data)) {
-        try { await navigator.share(data); } catch(e) {}
-      } else {
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`, '_blank', 'width=550,height=420');
-      }
-    });
-  } else {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`, '_blank', 'width=550,height=420');
-  }
+document.getElementById('polaroid_shareBtn').addEventListener('click', function(){
+  var canvas = document.getElementById('polaroid_polaroidWrap') ? document.getElementById('polaroid_polaroidWrap').querySelector('canvas') : null;
+  copyCanvasToClipboard(canvas, 'polaroid_statusMsg');
+});
+
+document.getElementById('polaroid_tweetBtn').addEventListener('click', function(){
+  var text = encodeURIComponent('ポラロイド風に変換してみた📷 #NostalgicAmnesia #ポラロイド\nhttps://ninja2019.github.io/popart-face/');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
 });
 
 document.getElementById('polaroid_resetBtn').addEventListener('click', () => {
@@ -1593,23 +1555,13 @@ document.getElementById('film_downloadBtn').addEventListener('click', function()
 
 // Share
 document.getElementById('film_shareBtn').addEventListener('click', function(){
-  var text='フィルムカメラ風フィルターかけてみた📸 #NostalgicAmnesia #フィルム写真';
-  var canvases=document.getElementById('film_filmGrid').querySelectorAll('canvas');
-  if(!canvases.length) return;
-  var S=480,G=3;
-  var fin=document.createElement('canvas'); fin.width=S*2+G; fin.height=S*2+G;
-  var fc=fin.getContext('2d'); fc.fillStyle='#111'; fc.fillRect(0,0,fin.width,fin.height);
-  [[0,0],[S+G,0],[0,S+G],[S+G,S+G]].forEach(function(p,i){ if(canvases[i]) fc.drawImage(canvases[i],p[0],p[1]); });
-  if(typeof navigator.share==='function'){
-    fin.toBlob(function(blob){
-      var file=new File([blob],'film-photo.png',{type:'image/png'});
-      var data={text:text,files:[file]};
-      if(navigator.canShare&&navigator.canShare(data)){ navigator.share(data).catch(function(){}); return; }
-      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','width=550,height=420');
-    });
-  } else {
-    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','width=550,height=420');
-  }
+  var canvas = document.getElementById('film_filmGrid').querySelector('canvas.selected') || document.getElementById('film_filmGrid').querySelector('canvas');
+  copyCanvasToClipboard(canvas, 'film_statusMsg');
+});
+
+document.getElementById('film_tweetBtn').addEventListener('click', function(){
+  var text = encodeURIComponent('フィルムカメラ風フィルターかけてみた📸 #NostalgicAmnesia #フィルム写真\nhttps://ninja2019.github.io/popart-face/');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
 });
 
 // Reset
@@ -1910,26 +1862,13 @@ document.getElementById('crt_downloadBtn').addEventListener('click', function(){
 
 // ── SHARE ─────────────────────────────────────────────────────
 document.getElementById('crt_shareBtn').addEventListener('click', function(){
-  var text = 'ブラウン管フィルターかけてみた📺 #Nostalgic Amnesia #CRTFilter';
-  var canvases = outputGrid.querySelectorAll('canvas');
-  if (!canvases.length) return;
-  var S=480,GAP=3;
-  var fin=document.createElement('canvas'); fin.width=S*2+GAP; fin.height=S*2+GAP;
-  var fc=fin.getContext('2d'); fc.fillStyle='#D6D3CC'; fc.fillRect(0,0,fin.width,fin.height);
-  [[0,0],[S+GAP,0],[0,S+GAP],[S+GAP,S+GAP]].forEach(function(p,i){ if(canvases[i]) fc.drawImage(canvases[i],p[0],p[1]); });
-  if (typeof navigator.share === 'function') {
-    fin.toBlob(function(blob){
-      var file = new File([blob],'crt-filter.png',{type:'image/png'});
-      var data = {text:text, files:[file]};
-      if (navigator.canShare && navigator.canShare(data)) {
-        navigator.share(data).catch(function(){});
-      } else {
-        window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','width=550,height=420');
-      }
-    });
-  } else {
-    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','width=550,height=420');
-  }
+  var canvas = outputGrid.querySelector('canvas.selected') || outputGrid.querySelector('canvas');
+  copyCanvasToClipboard(canvas, 'crt_statusMsg');
+});
+
+document.getElementById('crt_tweetBtn').addEventListener('click', function(){
+  var text = encodeURIComponent('ブラウン管フィルターかけてみた📺 #NostalgicAmnesia #レトロフィルター\nhttps://ninja2019.github.io/popart-face/');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
 });
 
 // ── RESET ─────────────────────────────────────────────────────
@@ -2193,7 +2132,17 @@ function downloadCanvas(cv, name) {
 
   document.getElementById('gb_generateBtn').addEventListener('click', generate);
 
-  document.getElementById('gb_downloadBtn').addEventListener('click', function(){
+  document.getElementById('gb_shareBtn').addEventListener('click', function(){
+  var sel = document.querySelector('#gb_outputGrid canvas.selected') || document.querySelector('#gb_outputGrid canvas');
+  copyCanvasToClipboard(sel, 'gb_statusMsg');
+});
+
+document.getElementById('gb_tweetBtn').addEventListener('click', function(){
+  var text = encodeURIComponent('ゲームボーイフィルターかけてみた🎮 #NostalgicAmnesia #GBフィルター\nhttps://ninja2019.github.io/popart-face/');
+  window.open('https://twitter.com/intent/tweet?text='+text, '_blank');
+});
+
+document.getElementById('gb_downloadBtn').addEventListener('click', function(){
     var sel = document.querySelector('#gb_outputGrid canvas.selected');
     if(!sel){ document.getElementById('gb_statusMsg').textContent = 'キャンバスを選択してください'; return; }
     downloadCanvas(sel, 'gb_'+sel.dataset.mode+'_filter.png');
@@ -2224,6 +2173,36 @@ function updateClock() {
   if(_clk) _clk.textContent = h+':'+m;
 }
 
+
+
+// ── CLIPBOARD COPY HELPER ────────────────────────────────
+function copyCanvasToClipboard(canvas, statusId) {
+  if (!canvas) {
+    if (statusId) document.getElementById(statusId).textContent = '画像が見つかりません';
+    return;
+  }
+  canvas.toBlob(function(blob) {
+    try {
+      var item = new ClipboardItem({ 'image/png': blob });
+      navigator.clipboard.write([item]).then(function() {
+        if (statusId) document.getElementById(statusId).textContent = '📋 クリップボードにコピーしました！ Xで貼り付けて投稿できます';
+      }).catch(function() {
+        // fallback: download
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'nostalgic_amnesia.png';
+        a.click();
+        if (statusId) document.getElementById(statusId).textContent = '画像を保存しました（手動でXに添付してください）';
+      });
+    } catch(e) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'nostalgic_amnesia.png';
+      a.click();
+      if (statusId) document.getElementById(statusId).textContent = '画像を保存しました（手動でXに添付してください）';
+    }
+  }, 'image/png');
+}
 
 document.addEventListener('DOMContentLoaded', function(){
 
@@ -2366,7 +2345,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="canvas-wrap" id="popartconverter_canvasGrid"></div>
       <div class="actions">
         <button class="btn btn-primary" id="popartconverter_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="popartconverter_shareBtn">SHARE</button>
+        <button class="btn btn-x" id="popartconverter_shareBtn">📋 コピー</button>
         <button class="btn btn-secondary" id="popartconverter_resetBtn">✕ リセット</button>
       </div>
       <div id="popartconverter_shareMethod" style="display:none;margin-top:8px;"><select id="popartconverter_shareNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:2px;"></select><button class="btn btn-secondary" id="popartconverter_tweetBtn" style="margin-left:4px;">Tweet</button></div>
@@ -2436,7 +2415,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="canvas-wrap" id="polaroid_polaroidWrap"></div>
       <div class="actions">
         <button class="btn btn-primary" id="polaroid_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="polaroid_shareBtn">SHARE</button>
+        <button class="btn btn-x" id="polaroid_shareBtn">📋 コピー</button>
+        <button class="btn btn-x" id="polaroid_tweetBtn">𝕏 投稿</button>
         <button class="btn btn-secondary" id="polaroid_resetBtn">✕ リセット</button>
       </div>
     </div>
@@ -2525,7 +2505,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="film-grid" id="film_filmGrid"></div>
       <div class="actions">
         <button class="btn btn-primary" id="film_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="film_shareBtn">SHARE</button>
+        <button class="btn btn-x" id="film_shareBtn">📋 コピー</button>
+        <button class="btn btn-x" id="film_tweetBtn">𝕏 投稿</button>
         <button class="btn btn-secondary" id="film_resetBtn">✕ リセット</button>
       </div>
     </div>
@@ -2603,7 +2584,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="output-grid" id="crt_outputGrid"></div>
       <div class="actions">
         <button class="btn btn-primary" id="crt_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="crt_shareBtn">SHARE</button>
+        <button class="btn btn-x" id="crt_shareBtn">📋 コピー</button>
+        <button class="btn btn-x" id="crt_tweetBtn">𝕏 投稿</button>
         <button class="btn btn-secondary" id="crt_resetBtn">✕ リセット</button>
       </div>
     </div>
@@ -2698,6 +2680,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="btn-row">
     <button class="btn btn-primary" id="gb_downloadBtn">💾 選択を保存</button>
     <button class="btn" id="gb_downloadAllBtn">📦 全て保存</button>
+    <button class="btn btn-x" id="gb_shareBtn">📋 コピー</button>
+    <button class="btn btn-x" id="gb_tweetBtn">𝕏 投稿</button>
     <button class="btn" id="gb_resetBtn">↩ リセット</button>
   </div>
   <div class="status-msg" id="gb_statusMsg"></div>
