@@ -200,7 +200,7 @@
   #crtWindow .section-label { font-size:11px; font-family:'Share Tech Mono',monospace; letter-spacing:0.06em; color:#1A1916; margin-bottom:8px; text-transform:uppercase; }
   #crtWindow .tool-eyebrow { font-size:10px; color:#666; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:4px; font-family:'Share Tech Mono',monospace; }
   #crtWindow .tool-title { font-family:'VT323',monospace; font-size:42px; color:#1A1916; letter-spacing:2px; margin-bottom:4px; line-height:1; }
-  #crtWindow .tool-desc { font-size:11px; color:#666; line-height:1.7; margin-bottom:20px; font-family:'Share Tech Mono',monospace; }
+  #crtWindow .tool-desc { font-size:10px; color:#666; letter-spacing:0.08em; line-height:1.8; margin-bottom:16px; font-family:'Share Tech Mono',monospace; }
   #crtWindow .actions { display:flex; gap:6px; flex-wrap:wrap; }
   #crtWindow .btn { padding:4px 16px; font-family:'Share Tech Mono',monospace; font-size:11px; background:var(--win-bg); color:#1A1916; border:2px solid; border-color:var(--win-white) var(--win-border-dark) var(--win-border-dark) var(--win-white); cursor:pointer; min-width:80px; text-align:center; }
   #crtWindow .btn:hover { background:#D0D0D0; }
@@ -726,10 +726,21 @@
 </div>
 
 <div class="taskbar">
-  <button class="start-btn" id="startBtn" onclick="toggleStartMenu()">▶ スタート</button>
+  <button class="start-btn" id="startBtn" onclick="toggleStartMenu()"><span data-i18n="btn_generate">▶ スタート</span></button>
   <div class="taskbar-divider"></div>
   <div class="taskbar-item">🎨 Nostalgic Amnesia</div>
-  <div class="taskbar-clock" id="clock">00:00</div>
+  <div id="langSwitcher" style="margin-left:auto;position:relative;display:flex;align-items:center;">
+    <button id="langMenuBtn" onclick="toggleLangMenu()" style="height:24px;padding:0 8px;font-family:'Share Tech Mono',monospace;font-size:10px;background:var(--win-bg);border:2px solid;border-color:var(--win-white) var(--win-border-dark) var(--win-border-dark) var(--win-white);cursor:pointer;display:flex;align-items:center;gap:3px;border-right:none;">
+      🌐 <span id="langMenuLabel">JP</span> ▲
+    </button>
+    <div class="taskbar-clock" id="clock" style="margin-left:0;">00:00</div>
+    <div id="langDropdown" style="display:none;position:absolute;bottom:28px;right:0;background:var(--win-bg);border:2px solid;border-color:var(--win-white) var(--win-border-dark) var(--win-border-dark) var(--win-white);box-shadow:3px 3px 0 #404040;z-index:99999;min-width:130px;">
+      <div onclick="selectLang('ja')" id="langOpt_ja" style="padding:5px 16px 5px 24px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:default;white-space:nowrap;background:var(--win-navy);color:#fff;">日本語</div>
+      <div onclick="selectLang('en')" id="langOpt_en" style="padding:5px 16px 5px 24px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:default;white-space:nowrap;">English</div>
+      <div onclick="selectLang('zh-Hans')" id="langOpt_zhHans" style="padding:5px 16px 5px 24px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:default;white-space:nowrap;">简体字</div>
+      <div onclick="selectLang('zh-Hant')" id="langOpt_zhHant" style="padding:5px 16px 5px 24px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:default;white-space:nowrap;">繁體字</div>
+    </div>
+  </div>
 </div>
 
 <!-- DESKTOP -->
@@ -772,7 +783,7 @@
 
   <!-- ICON AREA -->
   <div class="icon-grid-label" style="text-align:center;">— ツール —</div>
-  <div class="dblclick-hint">アイコンをダブルクリックで起動</div>
+  <div class="dblclick-hint" data-i18n="dblclick_hint">アイコンをダブルクリックで起動</div>
   <div class="icon-grid" style="justify-content:center;">
 
     <a href="popart-converter.html" class="desk-icon" data-spa="popartconverter">
@@ -810,9 +821,8 @@
       <div class="about-panel">
         <div class="about-panel-title">About This Site</div>
         <div class="about-panel-text">
-          Hello world ;)<br><br>
-          要望・連絡は File &gt; About からプロフィール閲覧できるよ！<br><br>
-          初めてのWeb作品なんだ！気に入ってくれると嬉しいね！
+          本ツールで生成した画像は自由にご利用いただけます。商用・非商用を問いません。<br><br>
+          ただし、生成画像の利用により生じたいかなる損害についても作者は一切の責任を負いません。
         </div>
       </div>
       <div class="about-panel">
@@ -833,6 +843,163 @@
 </div>
 
 <script>
+
+// ══════════════════════════════════════════════════════
+// i18n
+// ══════════════════════════════════════════════════════
+var I18N = {
+  ja: {
+    tool_label:'— ツール —',
+    dblclick_hint:'アイコンをダブルクリックで起動',
+    drop_text:'ここにファイルをドロップ、またはクリックして開く',
+    btn_generate:'▶ 生成する', btn_save:'💾 保存', btn_copy:'📋 コピー',
+    btn_tweet:'𝕏 投稿', btn_reset:'✕ リセット',
+    btn_savesel:'💾 選択を保存', btn_saveall:'📦 全て保存',
+    back:'◀ デスクトップに戻る',
+    desc_film:'80〜90年代フィルムカメラの質感を再現。日付スタンプ・ピンぼけ・グレイン・ハレーション・退色を4銘柄で同時出力。',
+    desc_crt:'ブラウン管モニター風フィルターを適用します。スキャンライン・バレル歪み・RGB滲み・ノイズ・ビデオ入力テキストで90年代の質感を再現。',
+    desc_gb:'90年代の携帯ゲーム機の液晶を再現。Pocket の緑・Light の青緑・Original のイエローグリーン、3モードのドット絵風フィルターを同時出力。',
+    sec_palette:'カラーパレット', sec_output:'出力プレビュー', sec_filter:'フィルター',
+    sec_caption:'キャプション', sec_count:'枚数', sec_date:'日付スタンプ',
+    sec_filmtype:'フィルム銘柄（各1枚 × 4種 を同時出力）',
+    sec_variants:'カラーバリエーション（4枚選択 / 6色中）',
+    sec_intensity:'エフェクト強度', sec_mode:'カラーモード', sec_pixel:'ピクセルサイズ',
+    sec_output_gb:'出力（クリックで拡大 / 選択）',
+    sec_output_film:'出力プレビュー（4銘柄）',
+    sec_options:'オプション',
+    icon_popart:'ポップフィルター', icon_polaroid:'ポラロイドジェネレーター',
+    icon_crt:'レトロブラウン管フィルター', icon_film:'フィルムフォトフィルター', icon_gb:'GBフィルター',
+    st_copied:'📋 クリップボードにコピーしました！ Xで貼り付けて投稿できます',
+    desc_popart:'アンディ・ウォーホル風のポップアートに変換。4色のカラーパレットで同時出力します。',
+    desc_polaroid:'写真をポラロイド風フレームに変換。フィルターとキャプションを加えてレトロな1枚に仕上げます。',
+  },
+  en: {
+    tool_label:'— TOOLS —',
+    dblclick_hint:'Double-click icon to launch',
+    drop_text:'Drop file here or click to open',
+    btn_generate:'▶ Generate', btn_save:'💾 Save', btn_copy:'📋 Copy',
+    btn_tweet:'𝕏 Post', btn_reset:'✕ Reset',
+    btn_savesel:'💾 Save Selected', btn_saveall:'📦 Save All',
+    back:'◀ Back to Desktop',
+    desc_film:'Recreates 80-90s film camera look. Outputs 4 film stocks simultaneously with date stamp, grain, halation and fading.',
+    desc_crt:'Apply a CRT monitor-style filter. Recreates 90s TV imagery with scanlines, barrel distortion, RGB blur and noise.',
+    desc_gb:'Recreates 90s handheld LCD. Outputs 3 modes simultaneously: Pocket green, Light teal, Original yellow-green.',
+    sec_palette:'Color Palette', sec_output:'Output Preview', sec_filter:'Filter',
+    sec_caption:'Caption', sec_count:'Count', sec_date:'Date Stamp',
+    sec_filmtype:'Film Stock (4 types simultaneously)',
+    sec_variants:'Color Variants (select 4 of 6)',
+    sec_intensity:'Effect Intensity', sec_mode:'Color Mode', sec_pixel:'Pixel Size',
+    sec_output_gb:'Output (click to enlarge / select)',
+    sec_output_film:'Output Preview (4 stocks)',
+    sec_options:'Options',
+    icon_popart:'Pop Filter', icon_polaroid:'Polaroid Gen',
+    icon_crt:'CRT Filter', icon_film:'Film Filter', icon_gb:'GB Filter',
+    st_copied:'📋 Copied! Paste into X to post',
+    desc_popart:'Converts photos into Warhol-style pop art. Outputs 4 color palette variations simultaneously.',
+    desc_polaroid:'Transforms photos into Polaroid-style frames. Add filters and captions for a retro finish.',
+  },
+  'zh-Hans': {
+    tool_label:'— 工具 —',
+    dblclick_hint:'双击图标启动',
+    drop_text:'拖放文件到此处，或点击打开',
+    btn_generate:'▶ 生成', btn_save:'💾 保存', btn_copy:'📋 复制',
+    btn_tweet:'𝕏 发帖', btn_reset:'✕ 重置',
+    btn_savesel:'💾 保存所选', btn_saveall:'📦 保存全部',
+    back:'◀ 返回桌面',
+    desc_film:'重现80-90年代胶片质感，同时输出4种胶卷，含日期戳、颗粒、光晕和褪色。',
+    desc_crt:'应用CRT显示器风格滤镜，通过扫描线、桶形失真、RGB模糊重现90年代电视画面。',
+    desc_gb:'重现90年代掌机液晶屏，同时输出3种模式：Pocket绿、Light青绿、Original黄绿。',
+    sec_palette:'色彩调板', sec_output:'输出预览', sec_filter:'滤镜',
+    sec_caption:'说明文字', sec_count:'数量', sec_date:'日期戳',
+    sec_filmtype:'胶卷类型（同时输出4种）',
+    sec_variants:'颜色变体（从6色中选4）',
+    sec_intensity:'效果强度', sec_mode:'颜色模式', sec_pixel:'像素大小',
+    sec_output_gb:'输出（点击放大/选择）',
+    sec_output_film:'输出预览（4种胶卷）',
+    sec_options:'选项',
+    icon_popart:'波普滤镜', icon_polaroid:'拍立得生成器',
+    icon_crt:'CRT滤镜', icon_film:'胶片滤镜', icon_gb:'GB滤镜',
+    st_copied:'📋 已复制！粘贴到X即可发布',
+    desc_popart:'将照片转换为沃霍尔风格波普艺术，同时输出4种色彩调板。',
+    desc_polaroid:'将照片转换为拍立得风格相框，加入滤镜和说明文字，打造复古感。',
+  },
+  'zh-Hant': {
+    tool_label:'— 工具 —',
+    dblclick_hint:'雙擊圖示啟動',
+    drop_text:'拖放檔案至此，或點擊開啟',
+    btn_generate:'▶ 生成', btn_save:'💾 儲存', btn_copy:'📋 複製',
+    btn_tweet:'𝕏 發文', btn_reset:'✕ 重設',
+    btn_savesel:'💾 儲存所選', btn_saveall:'📦 全部儲存',
+    back:'◀ 返回桌面',
+    desc_film:'重現80-90年代底片質感，同時輸出4種底片，含日期戳、顆粒、光暈和褪色。',
+    desc_crt:'套用CRT顯示器風格濾鏡，透過掃描線、桶形失真、RGB模糊重現90年代電視畫面。',
+    desc_gb:'重現90年代掌機液晶螢幕，同時輸出3種模式：Pocket綠、Light青綠、Original黃綠。',
+    sec_palette:'色彩調盤', sec_output:'輸出預覽', sec_filter:'濾鏡',
+    sec_caption:'說明文字', sec_count:'數量', sec_date:'日期戳',
+    sec_filmtype:'底片類型（同時輸出4種）',
+    sec_variants:'顏色變體（從6色中選4）',
+    sec_intensity:'效果強度', sec_mode:'顏色模式', sec_pixel:'像素大小',
+    sec_output_gb:'輸出（點擊放大/選擇）',
+    sec_output_film:'輸出預覽（4種底片）',
+    sec_options:'選項',
+    icon_popart:'波普濾鏡', icon_polaroid:'拍立得生成器',
+    icon_crt:'CRT濾鏡', icon_film:'底片濾鏡', icon_gb:'GB濾鏡',
+    st_copied:'📋 已複製！貼上到X即可發布',
+    desc_popart:'將照片轉換為沃霍爾風格波普藝術，同時輸出4種色彩調盤。',
+    desc_polaroid:'將照片轉換為拍立得風格相框，加入濾鏡和說明文字，打造復古感。',
+  }
+};
+var currentLang = 'ja';
+
+
+function setLang(lang) {
+  currentLang = lang;
+  var t = I18N[lang];
+  if (!t) return;
+  // ① data-i18n属性を持つ全要素を一括更新
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  // ② デスクトップアイコンラベル（順序依存）
+  var iconKeys = ['popart','polaroid','crt','film','gb'];
+  document.querySelectorAll('.desk-icon .icon-label').forEach(function(el, i) {
+    if (iconKeys[i] && t['icon_'+iconKeys[i]]) el.textContent = t['icon_'+iconKeys[i]];
+  });
+  // ③ ドロップダウンのアクティブ表示はselectLangで管理
+}
+
+function detectLang(){
+  var l=(navigator.language||'ja').toLowerCase();
+  if(l==='zh-tw'||l==='zh-hk'||l==='zh-hant') return 'zh-Hant';
+  if(l.startsWith('zh')) return 'zh-Hans';
+  if(l.startsWith('en')) return 'en';
+  return 'ja';
+}
+
+// section-labelのJA→ENキーマップ（初回setLang時に使う）
+var _secJaMap = {
+  'カラーパレット':'sec_palette','出力プレビュー':'sec_output','フィルター':'sec_filter',
+  'キャプション':'sec_caption','枚数':'sec_count','日付スタンプ':'sec_date',
+  'フィルム銘柄（各1枚 × 4種 を同時出力）':'sec_filmtype',
+  'カラーバリエーション（4枚選択 / 6色中）':'sec_variants',
+  'エフェクト強度':'sec_intensity','カラーモード':'sec_mode','ピクセルサイズ':'sec_pixel',
+  // 出力ラベル（通常はsection-labelクラスでない場合もあるが念のため）
+  '出力プレビュー（4銘柄）':'sec_output','出力（クリックで拡大 / 選択）':'sec_output',
+};
+// 現在のキー記憶（DOM書き換え後でも追えるように）
+var _secKeyMap = {};
+
+function _initSecKeyMap(){
+  document.querySelectorAll('.section-label').forEach(function(el,i){
+    var txt = el.textContent.trim();
+    var key = _secJaMap[txt];
+    if(key) { el.dataset.i18nKey = key; }
+  });
+}
+
+
+
 // ── FUNCTION DEFINITIONS (hoisted — safe for onclick= attributes) ──
 
 function updateClock(){
@@ -1066,6 +1233,11 @@ document.getElementById('popartconverter_shareBtn').addEventListener('click', fu
 document.getElementById('popartconverter_tweetBtn').addEventListener('click', function(){
   var text = encodeURIComponent('ウォーホル風ポップアートに変換してみた🎨 #NostalgicAmnesia #ポップアート\nhttps://ninja2019.github.io/popart-face/');
   window.open('https://twitter.com/intent/tweet?text='+text, '_blank');
+});
+
+document.getElementById('popartconverter_generateBtn').addEventListener('click', () => {
+  if (!originalImage) return;
+  renderAll();
 });
 
 document.getElementById('popartconverter_downloadBtn').addEventListener('click', () => {
@@ -2172,15 +2344,47 @@ document.getElementById('gb_downloadBtn').addEventListener('click', function(){
 
 };
 
-function updateClock() {
-  var now = new Date();
-  var h = String(now.getHours()).padStart(2,'0');
-  var m = String(now.getMinutes()).padStart(2,'0');
-  var _clk = document.getElementById('clock');
-  if(_clk) _clk.textContent = h+':'+m;
+
+
+
+
+
+// ── LANG DROPDOWN ────────────────────────────────────────
+var _langLabels = {'ja':'JP','en':'EN','zh-Hans':'中(简)','zh-Hant':'中(繁)'};
+
+function toggleLangMenu() {
+  var dd = document.getElementById('langDropdown');
+  var btn = document.getElementById('langMenuBtn');
+  if (!dd) return;
+  var open = dd.style.display !== 'none';
+  dd.style.display = open ? 'none' : 'block';
+  btn.style.borderColor = open
+    ? 'var(--win-white) var(--win-border-dark) var(--win-border-dark) var(--win-white)'
+    : 'var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark)';
 }
 
+function closeLangMenu() {
+  var dd = document.getElementById('langDropdown');
+  var btn = document.getElementById('langMenuBtn');
+  if (dd) dd.style.display = 'none';
+  if (btn) btn.style.borderColor = 'var(--win-white) var(--win-border-dark) var(--win-border-dark) var(--win-white)';
+}
 
+function selectLang(lang) {
+  closeLangMenu();
+  setLang(lang);
+  // ラベル更新
+  var label = document.getElementById('langMenuLabel');
+  if (label) label.textContent = _langLabels[lang] || lang;
+  // アクティブ行のハイライト
+  ['ja','en','zh-Hans','zh-Hant'].forEach(function(l) {
+    var opt = document.getElementById('langOpt_' + l.replace('-',''));
+    if (!opt) return;
+    var active = l === lang;
+    opt.style.background = active ? 'var(--win-navy)' : 'var(--win-bg)';
+    opt.style.color = active ? '#fff' : '#000';
+  });
+}
 
 // ── CLIPBOARD COPY HELPER ────────────────────────────────
 function copyCanvasToClipboard(canvas, statusId) {
@@ -2212,8 +2416,16 @@ function copyCanvasToClipboard(canvas, statusId) {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
+  // 言語メニュー外クリックで閉じる
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('langSwitcher');
+    if (sw && !sw.contains(e.target)) closeLangMenu();
+  });
+
 
   updateClock(); setInterval(updateClock, 10000);
+  _initSecKeyMap();
+  setLang(detectLang());
 
   document.addEventListener('click', function(e){
     var mb = document.getElementById('mainMenubar');
@@ -2321,16 +2533,17 @@ document.addEventListener('DOMContentLoaded', function(){
       <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
     </div>
     <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('popartconverter')">◀ デスクトップに戻る</button>
+      <button class="tool-win-backbtn" data-i18n="back" onclick="closeTool('popartconverter')">◀ デスクトップに戻る</button>
       <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; ポップフィルター</span>
     </div>
     <div class="tool-win-body">
 <div class="tool-eyebrow">01 / ポップフィルター</div>
     <div class="tool-title">ポップフィルター<span class="blink">_</span></div>
+    <div class="tool-desc" data-i18n="desc_popart">アンディ・ウォーホル風のポップアートに変換。4色のカラーパレットで同時出力します。</div>
     <div class="win-inset" style="padding:0;margin-bottom:16px;">
       <div class="drop-zone" id="popartconverter_dropZone">
         <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
+        <div class="drop-text" data-i18n="drop_text">ここにファイルをドロップ、またはクリックして開く</div>
         <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
       </div>
     </div>
@@ -2338,10 +2551,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="controls-section" id="popartconverter_controlsSection">
       <div class="win-panel" id="popartconverter_paletteSection">
-        <div class="section-label">カラーパレット</div>
+        <div class="section-label" data-i18n="sec_palette">カラーパレット</div>
         <div id="popartconverter_palettes"></div>
       </div>
-      <button class="btn btn-primary" id="popartconverter_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
+      <button class="btn btn-primary" id="popartconverter_generateBtn" style="margin-bottom:8px;"><span data-i18n="btn_generate">▶ 生成する</span></button>
     </div>
     <div class="loading" id="popartconverter_loading">
       <div class="loading-text">PROCESSING...</div>
@@ -2351,9 +2564,9 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="section-label" style="margin-bottom:8px;">出力プレビュー</div>
       <div class="canvas-wrap" id="popartconverter_canvasGrid"></div>
       <div class="actions">
-        <button class="btn btn-primary" id="popartconverter_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="popartconverter_shareBtn">📋 コピー</button>
-        <button class="btn btn-secondary" id="popartconverter_resetBtn">✕ リセット</button>
+        <button class="btn btn-primary" id="popartconverter_downloadBtn"><span data-i18n="btn_save">💾 保存</span></button>
+        <button class="btn btn-x" id="popartconverter_shareBtn"><span data-i18n="btn_copy">📋 コピー</span></button>
+        <button class="btn btn-secondary" id="popartconverter_resetBtn"><span data-i18n="btn_reset">✕ リセット</span></button>
       </div>
       <div id="popartconverter_shareMethod" style="display:none;margin-top:8px;"><select id="popartconverter_shareNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:2px;"></select><button class="btn btn-secondary" id="popartconverter_tweetBtn" style="margin-left:4px;">Tweet</button></div>
     </div>
@@ -2375,16 +2588,17 @@ document.addEventListener('DOMContentLoaded', function(){
       <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
     </div>
     <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('polaroid')">◀ デスクトップに戻る</button>
+      <button class="tool-win-backbtn" data-i18n="back" onclick="closeTool('polaroid')">◀ デスクトップに戻る</button>
       <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; ポラロイドジェネレーター</span>
     </div>
     <div class="tool-win-body">
 <div class="tool-eyebrow">02 / ポラロイドジェネレーター</div>
     <div class="tool-title">ポラロイドジェネレーター<span class="blink">_</span></div>
+    <div class="tool-desc" data-i18n="desc_polaroid">写真をポラロイド風フレームに変換。フィルターとキャプションを加えてレトロな1枚に仕上げます。</div>
     <div class="win-inset" style="padding:0;margin-bottom:16px;">
       <div class="drop-zone" id="polaroid_dropZone">
         <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
+        <div class="drop-text" data-i18n="drop_text">ここにファイルをドロップ、またはクリックして開く</div>
         <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
       </div>
     </div>
@@ -2392,7 +2606,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="controls-section" id="polaroid_controlsSection">
       <div class="win-panel">
-        <div class="section-label">フィルター</div>
+        <div class="section-label" data-i18n="sec_filter">フィルター</div>
         <select id="polaroid_filterSelect" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 8px;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);background:var(--win-bg);margin-bottom:8px;">
           <option value="faded">Faded</option>
           <option value="warm">Warm</option>
@@ -2401,17 +2615,17 @@ document.addEventListener('DOMContentLoaded', function(){
         </select>
       </div>
       <div class="win-panel">
-        <div class="section-label">キャプション</div>
+        <div class="section-label" data-i18n="sec_caption">キャプション</div>
         <input type="text" id="polaroid_captionInput" placeholder="キャプションを入力..." style="width:100%;padding:4px 8px;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);font-family:'Share Tech Mono',monospace;font-size:12px;background:var(--win-white);">
       </div>
       <div class="win-panel">
-        <div class="section-label">枚数</div>
+        <div class="section-label" data-i18n="sec_count">枚数</div>
         <select id="polaroid_countSelect" style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 8px;border:2px solid;border-color:var(--win-border-dark) var(--win-white) var(--win-white) var(--win-border-dark);background:var(--win-bg);">
           <option value="1">1枚</option>
           <option value="3">3枚</option>
         </select>
       </div>
-      <button class="btn btn-primary" id="polaroid_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
+      <button class="btn btn-primary" id="polaroid_generateBtn" style="margin-bottom:8px;"><span data-i18n="btn_generate">▶ 生成する</span></button>
     </div>
     <div class="loading" id="polaroid_loading">
       <div class="loading-text">PROCESSING...</div>
@@ -2421,10 +2635,10 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="section-label" style="margin-bottom:8px;">出力プレビュー</div>
       <div class="canvas-wrap" id="polaroid_polaroidWrap"></div>
       <div class="actions">
-        <button class="btn btn-primary" id="polaroid_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="polaroid_shareBtn">📋 コピー</button>
-        <button class="btn btn-x" id="polaroid_tweetBtn">𝕏 投稿</button>
-        <button class="btn btn-secondary" id="polaroid_resetBtn">✕ リセット</button>
+        <button class="btn btn-primary" id="polaroid_downloadBtn"><span data-i18n="btn_save">💾 保存</span></button>
+        <button class="btn btn-x" id="polaroid_shareBtn"><span data-i18n="btn_copy">📋 コピー</span></button>
+        <button class="btn btn-x" id="polaroid_tweetBtn"><span data-i18n="btn_tweet">𝕏 投稿</span></button>
+        <button class="btn btn-secondary" id="polaroid_resetBtn"><span data-i18n="btn_reset">✕ リセット</span></button>
       </div>
     </div>
     <div class="status-bar"><span>準備完了</span><span>Browser Canvas API</span><span>© 2025 Nostalgic Amnesia</span></div>
@@ -2445,19 +2659,19 @@ document.addEventListener('DOMContentLoaded', function(){
       <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
     </div>
     <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('film')">◀ デスクトップに戻る</button>
+      <button class="tool-win-backbtn" data-i18n="back" onclick="closeTool('film')">◀ デスクトップに戻る</button>
       <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; フィルムフォトフィルター</span>
     </div>
     <div class="tool-win-body">
 <div class="tool-eyebrow">06 / フィルムフォトフィルター</div>
     <div class="tool-title">フィルムフォトフィルター<span class="blink">_</span></div>
-    <div class="tool-desc">80〜90年代フィルムカメラの質感を再現。日付スタンプ・ピンぼけ・グレイン・ハレーション・退色を4銘柄で同時出力。</div>
+    <div class="tool-desc" data-i18n="desc_film">80〜90年代フィルムカメラの質感を再現。日付スタンプ・ピンぼけ・グレイン・ハレーション・退色を4銘柄で同時出力。</div>
 
     <!-- DROP ZONE -->
     <div class="win-inset" style="padding:0;margin-bottom:16px;">
       <div class="drop-zone" id="film_dropZone">
         <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
+        <div class="drop-text" data-i18n="drop_text">ここにファイルをドロップ、またはクリックして開く</div>
         <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
       </div>
     </div>
@@ -2467,7 +2681,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- DATE STAMP -->
       <div class="win-panel">
-        <div class="section-label">日付スタンプ</div>
+        <div class="section-label" data-i18n="sec_date">日付スタンプ</div>
         <div class="date-row">
           <label>YY</label>
           <input type="number" id="film_dateYY" min="80" max="99" value="94" style="width:50px;">
@@ -2484,20 +2698,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- FILM STOCKS -->
       <div class="win-panel">
-        <div class="section-label">フィルム銘柄（各1枚 × 4種 を同時出力）</div>
+        <div class="section-label" data-i18n="sec_filmtype">フィルム銘柄（各1枚 × 4種 を同時出力）</div>
         <div class="film-cards" id="film_filmCards"></div>
       </div>
 
       <!-- INTENSITY -->
       <div class="win-panel">
-        <div class="section-label">エフェクト強度</div>
+        <div class="section-label" data-i18n="sec_intensity">エフェクト強度</div>
         <div class="intensity-row">
           <input type="range" id="film_intensity" min="1" max="3" step="1" value="2">
           <span id="film_intensityVal" style="font-size:11px;font-family:'Share Tech Mono',monospace;min-width:56px;">Medium</span>
         </div>
       </div>
 
-      <button class="btn btn-primary" id="film_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
+      <button class="btn btn-primary" id="film_generateBtn" style="margin-bottom:8px;"><span data-i18n="btn_generate">▶ 生成する</span></button>
     </div>
 
     <!-- LOADING -->
@@ -2511,10 +2725,10 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="section-label" style="margin-bottom:8px;">出力プレビュー（4銘柄）</div>
       <div class="film-grid" id="film_filmGrid"></div>
       <div class="actions">
-        <button class="btn btn-primary" id="film_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="film_shareBtn">📋 コピー</button>
-        <button class="btn btn-x" id="film_tweetBtn">𝕏 投稿</button>
-        <button class="btn btn-secondary" id="film_resetBtn">✕ リセット</button>
+        <button class="btn btn-primary" id="film_downloadBtn"><span data-i18n="btn_save">💾 保存</span></button>
+        <button class="btn btn-x" id="film_shareBtn"><span data-i18n="btn_copy">📋 コピー</span></button>
+        <button class="btn btn-x" id="film_tweetBtn"><span data-i18n="btn_tweet">𝕏 投稿</span></button>
+        <button class="btn btn-secondary" id="film_resetBtn"><span data-i18n="btn_reset">✕ リセット</span></button>
       </div>
     </div>
 
@@ -2540,20 +2754,20 @@ document.addEventListener('DOMContentLoaded', function(){
       <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
     </div>
     <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('crt')">◀ デスクトップに戻る</button>
+      <button class="tool-win-backbtn" data-i18n="back" onclick="closeTool('crt')">◀ デスクトップに戻る</button>
       <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; レトロブラウン管フィルター</span>
     </div>
     <div class="tool-win-body">
 <!-- PATH / BREADCRUMB -->
     <div class="tool-eyebrow">05 / CRT Filter</div>
     <div class="tool-title">レトロブラウン管フィルター<span class="blink">_</span></div>
-    <div class="tool-desc">ブラウン管モニター風フィルターを適用します。スキャンライン・バレル歪み・RGB滲み・ノイズ・ビデオ入力テキストで90年代の質感を再現。</div>
+    <div class="tool-desc" data-i18n="desc_crt">ブラウン管モニター風フィルターを適用します。スキャンライン・バレル歪み・RGB滲み・ノイズ・ビデオ入力テキストで90年代の質感を再現。</div>
 
     <!-- DROP ZONE -->
     <div class="win-inset" style="padding:0;margin-bottom:16px;">
       <div class="drop-zone" id="crt_dropZone">
         <span class="drop-icon">🖼️</span>
-        <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
+        <div class="drop-text" data-i18n="drop_text">ここにファイルをドロップ、またはクリックして開く</div>
         <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
       </div>
     </div>
@@ -2563,20 +2777,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- VARIANT -->
       <div class="win-panel">
-        <div class="section-label">カラーバリエーション（4枚選択 / 6色中）</div>
+        <div class="section-label" data-i18n="sec_variants">カラーバリエーション（4枚選択 / 6色中）</div>
         <div class="variant-grid" id="crt_variantGrid"></div>
       </div>
 
       <!-- INTENSITY -->
       <div class="win-panel">
-        <div class="section-label">エフェクト強度</div>
+        <div class="section-label" data-i18n="sec_intensity">エフェクト強度</div>
         <div class="intensity-row">
           <input type="range" id="crt_intensity" min="1" max="3" step="1" value="2">
           <span class="intensity-label" id="crt_intensityVal">Medium</span>
         </div>
       </div>
 
-      <button class="btn btn-primary" style="margin-bottom:16px;" id="crt_generateBtn">▶ 生成する</button>
+      <button class="btn btn-primary" style="margin-bottom:16px;" id="crt_generateBtn"><span data-i18n="btn_generate">▶ 生成する</span></button>
     </div>
 
     <!-- LOADING -->
@@ -2590,10 +2804,10 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="section-label" style="margin-bottom:8px;">出力プレビュー</div>
       <div class="output-grid" id="crt_outputGrid"></div>
       <div class="actions">
-        <button class="btn btn-primary" id="crt_downloadBtn">💾 保存</button>
-        <button class="btn btn-x" id="crt_shareBtn">📋 コピー</button>
-        <button class="btn btn-x" id="crt_tweetBtn">𝕏 投稿</button>
-        <button class="btn btn-secondary" id="crt_resetBtn">✕ リセット</button>
+        <button class="btn btn-primary" id="crt_downloadBtn"><span data-i18n="btn_save">💾 保存</span></button>
+        <button class="btn btn-x" id="crt_shareBtn"><span data-i18n="btn_copy">📋 コピー</span></button>
+        <button class="btn btn-x" id="crt_tweetBtn"><span data-i18n="btn_tweet">𝕏 投稿</span></button>
+        <button class="btn btn-secondary" id="crt_resetBtn"><span data-i18n="btn_reset">✕ リセット</span></button>
       </div>
     </div>
 
@@ -2620,19 +2834,19 @@ document.addEventListener('DOMContentLoaded', function(){
       <span>File</span><span>Edit</span><span>Filter</span><span>View</span><span>Help</span>
     </div>
     <div class="tool-win-backbar">
-      <button class="tool-win-backbtn" onclick="closeTool('gameboy')">◀ デスクトップに戻る</button>
+      <button class="tool-win-backbtn" data-i18n="back" onclick="closeTool('gameboy')">◀ デスクトップに戻る</button>
       <span class="tool-win-breadcrumb">📁 Nostalgic Amnesia &gt; ゲームボーイフィルター</span>
     </div>
     <div class="tool-win-body">
 <div class="tool-eyebrow">05 / ゲームボーイカメラフィルター</div>
 <div class="tool-title">ゲームボーイフィルター<span class="blink">_</span></div>
-<div class="tool-desc">90年代の携帯ゲーム機の液晶を再現。Pocket の緑・Light の青緑・Original のイエローグリーン、3モードのドット絵風フィルターを同時出力。</div>
+<div class="tool-desc" data-i18n="desc_gb">90年代の携帯ゲーム機の液晶を再現。Pocket の緑・Light の青緑・Original のイエローグリーン、3モードのドット絵風フィルターを同時出力。</div>
 
 <!-- DROP ZONE -->
 <div class="win-inset" style="padding:0;margin-bottom:16px;">
   <div class="drop-zone" id="gb_dropZone">
     <span class="drop-icon">🎮</span>
-    <div class="drop-text">ここにファイルをドロップ、またはクリックして開く</div>
+    <div class="drop-text" data-i18n="drop_text">ここにファイルをドロップ、またはクリックして開く</div>
     <div class="drop-sub">JPG &nbsp;/&nbsp; PNG &nbsp;/&nbsp; WebP</div>
   </div>
 </div>
@@ -2642,13 +2856,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <!-- MODE -->
   <div class="win-panel">
-    <div class="section-label">カラーモード</div>
+    <div class="section-label" data-i18n="sec_mode">カラーモード</div>
     <div class="mode-cards" id="gb_modeCards"></div>
   </div>
 
   <!-- PIXEL SIZE -->
   <div class="win-panel">
-    <div class="section-label">ピクセルサイズ</div>
+    <div class="section-label" data-i18n="sec_pixel">ピクセルサイズ</div>
     <div class="option-row">
       <input type="range" id="gb_pixelSize" min="1" max="6" step="1" value="2">
       <span class="option-val" id="gb_pixelSizeVal">2px</span>
@@ -2657,7 +2871,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <!-- OPTIONS -->
   <div class="win-panel">
-    <div class="section-label">オプション</div>
+    <div class="section-label" data-i18n="sec_options">オプション</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="toggle-row">
         <input type="checkbox" id="gb_gridOverlay" checked>
@@ -2674,22 +2888,22 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 
-  <button class="btn btn-primary" id="gb_generateBtn" style="margin-bottom:8px;">▶ 生成する</button>
+  <button class="btn btn-primary" id="gb_generateBtn" style="margin-bottom:8px;"><span data-i18n="btn_generate">▶ 生成する</span></button>
 </div>
 
 <div class="loading" id="gb_loading">⣾ 処理中...</div>
 
 <div class="output-section" id="gb_outputSection">
   <div class="win-panel">
-    <div class="section-label">出力（クリックで拡大 / 選択）</div>
+    <div class="section-label" data-i18n="sec_output_gb">出力（クリックで拡大 / 選択）</div>
     <div class="gb-output-grid" id="gb_outputGrid"></div>
   </div>
   <div class="btn-row">
-    <button class="btn btn-primary" id="gb_downloadBtn">💾 選択を保存</button>
-    <button class="btn" id="gb_downloadAllBtn">📦 全て保存</button>
-    <button class="btn btn-x" id="gb_shareBtn">📋 コピー</button>
-    <button class="btn btn-x" id="gb_tweetBtn">𝕏 投稿</button>
-    <button class="btn" id="gb_resetBtn">↩ リセット</button>
+    <button class="btn btn-primary" id="gb_downloadBtn"><span data-i18n="btn_savesel">💾 選択を保存</span></button>
+    <button class="btn" id="gb_downloadAllBtn"><span data-i18n="btn_saveall">📦 全て保存</span></button>
+    <button class="btn btn-x" id="gb_shareBtn"><span data-i18n="btn_copy">📋 コピー</span></button>
+    <button class="btn btn-x" id="gb_tweetBtn"><span data-i18n="btn_tweet">𝕏 投稿</span></button>
+    <button class="btn" id="gb_resetBtn"><span data-i18n="btn_reset">↩ リセット</span></button>
   </div>
   <div class="status-msg" id="gb_statusMsg"></div>
 </div>
